@@ -1,0 +1,9 @@
+flask==2.3.3
+pymongo==4.6.0
+python-dotenv==1.0.0
+bcrypt==4.1.2
+pyjwt==2.8.0
+datetime
+uuid
+pytest==7.4.3
+flask-cors==4.0.0
