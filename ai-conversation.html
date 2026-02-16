@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CLEARNEXT - AI Conversation</title>
 
+    <!-- 🔹 YOUR ORIGINAL CSS (UNCHANGED) -->
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -84,8 +85,8 @@
 
 <div class="conversation-container">
     <div class="chat-header">
-        <h2>ClearNext AI Conversation</h2>
-        <p>Answer honestly. This helps personalize your journey.</p>
+        <h2>ClearNext AI Learning Journey</h2>
+        <p>I'll create a personalized learning roadmap for any subject you want to master</p>
     </div>
 
     <div class="chat-messages" id="chatMessages"></div>
@@ -97,9 +98,8 @@
     </div>
 </div>
 
+<!-- ✅ CLEAN & CORRECT JS -->
 <script>
-    let conversationId; // 🔥 FIXED
-
     const chatMessages = document.getElementById("chatMessages");
     const messageInput = document.getElementById("messageInput");
     const sendBtn = document.getElementById("sendBtn");
@@ -130,28 +130,21 @@
         showTyping();
 
         try {
-            const res = await fetch(
-                `http://localhost:5000/api/ai/conversation/${conversationId}/step`,
-                {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ response: text })
-                }
-            );
+            const res = await fetch("http://localhost:5000/api/ai/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message: text })
+            });
 
             const data = await res.json();
             hideTyping();
+
             addMessage(data.reply);
 
-            if (data.conversation.status === "completed") {
-                await fetch(
-                    `http://localhost:5000/api/ai/conversation/${conversationId}/complete`,
-                    { method: "POST" }
-                );
-
-                setTimeout(() => {
-                    window.location.href = "tasks.html";
-                }, 2000);
+           if (data.done === true) {
+               setTimeout(() => {
+                   window.location.href = "journey-duration.html";
+               }, 2000);
             }
 
         } catch (err) {
@@ -165,39 +158,22 @@
         if (e.key === "Enter") sendMessage();
     });
 
-    window.onload = async () => {
-        showTyping();
+    // 🔹 First AI message comes ONLY from backend
+window.onload = async () => {
+    showTyping();
 
-        const startRes = await fetch(
-            "http://localhost:5000/api/ai/conversation/start",
-            {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ user_id: "demo_user_1" })
-            }
-        );
+    const res = await fetch("http://localhost:5000/api/ai/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: "__start__" })
+    });
 
-        const startData = await startRes.json();
-        conversationId = startData.conversation.conversation_id;
+    const data = await res.json();
+    hideTyping();
+    addMessage(data.reply);
+};
 
-        const stepRes = await fetch(
-            `http://localhost:5000/api/ai/conversation/${conversationId}/step`,
-            {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({})
-            }
-        );
-
-        const stepData = await stepRes.json();
-
-        hideTyping();
-        addMessage(stepData.next_question);
-    };
 </script>
-
-<!-- 🔥 NOUPÉ EMBED SCRIPT (PASTED CORRECTLY) -->
-<script src="https://www.noupe.com/embed/019c489bbb4d717cbcebd9f2319d7593b87a.js"></script>
 
 </body>
 </html>
