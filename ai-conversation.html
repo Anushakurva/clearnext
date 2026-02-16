@@ -1,112 +1,156 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>ClearNext - AI Clarity Conversation</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ClearNext - AI Clarity Conversation</title>
 
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f5f7ff;
-            margin: 0;
-            padding: 0;
-        }
+<style>
+body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(135deg, #eef2ff, #f8f9ff);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
 
-        .container {
-            width: 90%;
-            max-width: 600px;
-            margin: 50px auto;
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
+.container {
+    background: white;
+    width: 90%;
+    max-width: 650px;
+    height: 85vh;
+    border-radius: 18px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.08);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
 
-        h2 {
-            text-align: center;
-        }
+.header {
+    padding: 20px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 18px;
+    border-bottom: 1px solid #eee;
+    background: #f8f9ff;
+}
 
-        #chatBox {
-            height: 350px;
-            overflow-y: auto;
-            border: 1px solid #ddd;
-            padding: 10px;
-            border-radius: 8px;
-            margin-bottom: 10px;
-        }
+#chatBox {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+}
 
-        .ai-message {
-            background: #eef1ff;
-            padding: 10px;
-            margin: 8px 0;
-            border-radius: 10px;
-        }
+.message {
+    margin-bottom: 15px;
+    padding: 12px 15px;
+    border-radius: 14px;
+    max-width: 80%;
+    font-size: 14px;
+    line-height: 1.5;
+}
 
-        .user-message {
-            background: #d6ffd8;
-            padding: 10px;
-            margin: 8px 0;
-            border-radius: 10px;
-            text-align: right;
-        }
+.ai {
+    background: #eef2ff;
+    align-self: flex-start;
+}
 
-        input {
-            width: 75%;
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid #ccc;
-        }
+.user {
+    background: #dbeafe;
+    align-self: flex-end;
+    text-align: right;
+}
 
-        button {
-            padding: 10px 15px;
-            border-radius: 8px;
-            border: none;
-            background: #4c6ef5;
-            color: white;
-            cursor: pointer;
-        }
+.input-area {
+    display: flex;
+    padding: 15px;
+    border-top: 1px solid #eee;
+    background: white;
+}
 
-        button:hover {
-            background: #364fc7;
-        }
-    </style>
+input {
+    flex: 1;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+}
+
+button {
+    margin-left: 10px;
+    padding: 12px 18px;
+    border-radius: 10px;
+    border: none;
+    background: #4f46e5;
+    color: white;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+button:hover {
+    background: #3730a3;
+}
+
+.progress {
+    text-align: center;
+    font-size: 12px;
+    color: #666;
+    padding: 8px;
+}
+</style>
 </head>
 
 <body>
 
 <div class="container">
-    <h2>ClearNext AI Clarity System</h2>
+    <div class="header">
+        ClearNext AI – Clarity Initialization
+    </div>
 
     <div id="chatBox"></div>
 
-    <input type="text" id="userInput" placeholder="Type your answer..." />
-    <button onclick="sendMessage()">Send</button>
+    <div class="progress" id="progressText"></div>
+
+    <div class="input-area">
+        <input type="text" id="userInput" placeholder="Type your answer...">
+        <button onclick="sendMessage()">Send</button>
+    </div>
 </div>
 
 <script>
 
+// Conversation Questions
 const questions = [
     "In one sentence, what is currently confusing you the most?",
     "When did this confusion begin?",
-    "What are you most afraid might happen if you make the wrong decision?",
+    "What are you most afraid might happen if you choose wrongly?",
     "Does this confusion make you feel stuck, anxious, or overwhelmed?",
-    "In the past 7 days, what actions have you taken toward solving this?",
-    "If nothing changes, where do you think you’ll be in 3 months?"
+    "What actions have you taken so far to solve this?",
+    "If nothing changes, where do you see yourself in 3 months?"
 ];
 
 let currentStep = 0;
 let responses = {};
 
+const chatBox = document.getElementById("chatBox");
+const progressText = document.getElementById("progressText");
+
+// Start Conversation
 function startConversation() {
-    appendMessage("AI", questions[currentStep]);
+    appendMessage("ai", questions[currentStep]);
+    updateProgress();
 }
 
+// Send Message
 function sendMessage() {
     const input = document.getElementById("userInput");
     const text = input.value.trim();
 
     if (text === "") return;
 
-    appendMessage("You", text);
+    appendMessage("user", text);
     responses["Q" + currentStep] = text;
 
     input.value = "";
@@ -114,42 +158,68 @@ function sendMessage() {
 
     if (currentStep < questions.length) {
         setTimeout(() => {
-            appendMessage("AI", questions[currentStep]);
-        }, 800);
+            appendMessage("ai", questions[currentStep]);
+            updateProgress();
+        }, 700);
     } else {
         endConversation();
     }
 }
 
+// End Conversation
 function endConversation() {
+
+    localStorage.setItem("clarityData", JSON.stringify(responses));
+
+    appendMessage("ai", "Thank you for your honesty.");
+    
     setTimeout(() => {
-        appendMessage("AI", "Thank you for being honest.");
-    }, 800);
+        appendMessage("ai", "Your clarity journey has been prepared.");
+    }, 1000);
 
     setTimeout(() => {
-        appendMessage("AI", "Your 7-Day Clarity Journey has been initialized.");
-    }, 1600);
-
-    setTimeout(() => {
-        localStorage.setItem("clarityData", JSON.stringify(responses));
-        appendMessage("AI", "Redirecting to Day 1...");
-        
-        setTimeout(() => {
-            window.location.href = "day1.html"; 
-        }, 2000);
-    }, 2400);
+        redirectToJourney();
+    }, 2000);
 }
 
-function appendMessage(sender, text) {
-    const chatBox = document.getElementById("chatBox");
-    const messageDiv = document.createElement("div");
+// Redirect Based on Selected Journey
+function redirectToJourney() {
 
-    messageDiv.className = sender === "AI" ? "ai-message" : "user-message";
-    messageDiv.innerText = text;
+    let selectedDays = localStorage.getItem("journeyDays");
 
-    chatBox.appendChild(messageDiv);
+    if (selectedDays === "7") {
+        window.location.href = "7day.html";
+    } else if (selectedDays === "14") {
+        window.location.href = "14day.html";
+    } else if (selectedDays === "21") {
+        window.location.href = "21day.html";
+    } else {
+        // default fallback
+        window.location.href = "7day.html";
+    }
+}
+
+// Append Messages
+function appendMessage(type, text) {
+    const div = document.createElement("div");
+    div.classList.add("message", type);
+    div.innerText = text;
+    chatBox.appendChild(div);
     chatBox.scrollTop = chatBox.scrollHeight;
 }
+
+// Update Progress
+function updateProgress() {
+    progressText.innerText = 
+        "Step " + (currentStep + 1) + " of " + questions.length;
+}
+
+// Enter key support
+document.getElementById("userInput").addEventListener("keypress", function(e) {
+    if (e.key === "Enter") {
+        sendMessage();
+    }
+});
 
 window.onload = startConversation;
 
