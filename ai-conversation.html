@@ -1,98 +1,159 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>ClearNext Prototype</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 40px;
-      background-color: #f9f9f9;
-    }
-    h1 {
-      color: #2c3e50;
-    }
-    .question {
-      margin: 15px 0;
-    }
-    .result {
-      margin-top: 25px;
-      padding: 15px;
-      background-color: #eef;
-      border-radius: 8px;
-    }
-  </style>
+    <title>ClearNext - AI Clarity Conversation</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f7ff;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 600px;
+            margin: 50px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            text-align: center;
+        }
+
+        #chatBox {
+            height: 350px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .ai-message {
+            background: #eef1ff;
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 10px;
+        }
+
+        .user-message {
+            background: #d6ffd8;
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 10px;
+            text-align: right;
+        }
+
+        input {
+            width: 75%;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: none;
+            background: #4c6ef5;
+            color: white;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #364fc7;
+        }
+    </style>
 </head>
+
 <body>
-  <h1>ClearNext 🌱</h1>
-  <p>Let's start with a calm conversation.</p>
 
-  <form id="clearnextForm">
-    <div class="question">
-      <label>Why do you feel confused?<br>
-        <input type="text" id="confusedReason" required>
-      </label>
-    </div>
+<div class="container">
+    <h2>ClearNext AI Clarity System</h2>
 
-    <div class="question">
-      <label>What are you afraid of?<br>
-        <input type="text" id="fear" required>
-      </label>
-    </div>
+    <div id="chatBox"></div>
 
-    <div class="question">
-      <label>How much time do you realistically have?<br>
-        <input type="text" id="timeAvailable" required>
-      </label>
-    </div>
+    <input type="text" id="userInput" placeholder="Type your answer..." />
+    <button onclick="sendMessage()">Send</button>
+</div>
 
-    <div class="question">
-      <label>Which field do you belong to?<br>
-        <select id="field" required>
-          <option value="">--Select--</option>
-          <option value="neet">NEET</option>
-          <option value="tech">Tech</option>
-          <option value="general">General</option>
-        </select>
-      </label>
-    </div>
+<script>
 
-    <button type="submit">Submit</button>
-  </form>
+const questions = [
+    "In one sentence, what is currently confusing you the most?",
+    "When did this confusion begin?",
+    "What are you most afraid might happen if you make the wrong decision?",
+    "Does this confusion make you feel stuck, anxious, or overwhelmed?",
+    "In the past 7 days, what actions have you taken toward solving this?",
+    "If nothing changes, where do you think you’ll be in 3 months?"
+];
 
-  <div id="result" class="result" style="display:none;"></div>
+let currentStep = 0;
+let responses = {};
 
-  <script>
-    document.getElementById("clearnextForm").addEventListener("submit", function(event) {
-      event.preventDefault();
+function startConversation() {
+    appendMessage("AI", questions[currentStep]);
+}
 
-      const confusedReason = document.getElementById("confusedReason").value;
-      const fear = document.getElementById("fear").value;
-      const timeAvailable = document.getElementById("timeAvailable").value;
-      const field = document.getElementById("field").value;
+function sendMessage() {
+    const input = document.getElementById("userInput");
+    const text = input.value.trim();
 
-      let response = "<h2>--- Understanding You ---</h2>";
+    if (text === "") return;
 
-      if (field === "neet") {
-        response += "<p>I hear you. Exam pressure and mental fatigue can be overwhelming.</p>";
-      } else if (field === "tech") {
-        response += "<p>I understand. Skill confusion and comparison are common in tech journeys.</p>";
-      } else {
-        response += "<p>I see. Overwhelm and decision paralysis often cause general confusion.</p>";
-      }
+    appendMessage("You", text);
+    responses["Q" + currentStep] = text;
 
-      response += "<h2>--- Summary ---</h2>";
-      response += "<p>Confused because: " + confusedReason + "</p>";
-      response += "<p>Afraid of: " + fear + "</p>";
-      response += "<p>Time available: " + timeAvailable + "</p>";
-      response += "<p>Field: " + field.charAt(0).toUpperCase() + field.slice(1) + "</p>";
+    input.value = "";
+    currentStep++;
 
-      response += "<p>Thank you for sharing. I won’t give advice immediately — first, I listen and understand.</p>";
+    if (currentStep < questions.length) {
+        setTimeout(() => {
+            appendMessage("AI", questions[currentStep]);
+        }, 800);
+    } else {
+        endConversation();
+    }
+}
 
-      const resultDiv = document.getElementById("result");
-      resultDiv.innerHTML = response;
-      resultDiv.style.display = "block";
-    });
-  </script>
+function endConversation() {
+    setTimeout(() => {
+        appendMessage("AI", "Thank you for being honest.");
+    }, 800);
+
+    setTimeout(() => {
+        appendMessage("AI", "Your 7-Day Clarity Journey has been initialized.");
+    }, 1600);
+
+    setTimeout(() => {
+        localStorage.setItem("clarityData", JSON.stringify(responses));
+        appendMessage("AI", "Redirecting to Day 1...");
+        
+        setTimeout(() => {
+            window.location.href = "day1.html"; 
+        }, 2000);
+    }, 2400);
+}
+
+function appendMessage(sender, text) {
+    const chatBox = document.getElementById("chatBox");
+    const messageDiv = document.createElement("div");
+
+    messageDiv.className = sender === "AI" ? "ai-message" : "user-message";
+    messageDiv.innerText = text;
+
+    chatBox.appendChild(messageDiv);
+    chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+window.onload = startConversation;
+
+</script>
+
 </body>
 </html>
